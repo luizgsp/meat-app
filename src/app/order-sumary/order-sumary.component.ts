@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'mt-order-sumary',
@@ -6,9 +7,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class OrderSumaryComponent implements OnInit {
 
-  constructor() { }
+  pedido: any
+
+  constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
+    this.pedido = this.route.snapshot.params['id']
   }
 
 }
