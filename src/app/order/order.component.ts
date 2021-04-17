@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FormGroup, FormBuilder} from '@angular/forms';
+import {FormGroup, FormBuilder, Validators, AbstractControl} from '@angular/forms';
 
 import { RadioOption } from '../shared/radio/radio-opion.model'
 import { CartItem } from './../restaurant-detail/shopping-cart/shopping-cart.model';
@@ -18,6 +18,9 @@ export class OrderComponent implements OnInit {
 
   delivery: number = 8
 
+  emailPathern = /^(([^<>()\[\]\.,;:\s@\"]+(\.[^<>()\[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i
+  numberPathern = /^[0-9]*$/
+
   paymentOptions: RadioOption[] = [
     {label: 'Dinheiro', value: 'MON'},
     {label: 'Cartão de Débito', value: 'DEB'},
@@ -31,14 +34,26 @@ export class OrderComponent implements OnInit {
 
   ngOnInit() {
     this.orderForm = this.formBuilder.group({
-      name: this.formBuilder.control(''),
-      email: this.formBuilder.control(''),
-      emailConfirmation: this.formBuilder.control(''),
-      address: this.formBuilder.control(''),
-      number: this.formBuilder.control(''),
+      name: this.formBuilder.control('', [Validators.required, Validators.minLength(5)]),
+      email: this.formBuilder.control('',[Validators.required,Validators.pattern(this.emailPathern)]),
+      emailConfirmation: this.formBuilder.control('',[Validators.required,Validators.pattern(this.emailPathern)]),
+      address: this.formBuilder.control('', [Validators.required, Validators.minLength(5)]),
+      number: this.formBuilder.control('',[Validators.required,Validators.pattern(this.numberPathern)]),
       optionalAddress: this.formBuilder.control(''),
-      paymentOption: this.formBuilder.control('')
-    })
+      paymentOption: this.formBuilder.control('', [Validators.required])
+    }, {validator: OrderComponent.equalsTo})
+  }
+
+  static equalsTo(group: AbstractControl) : {[key:string]: boolean}{
+    const email = group.get('email')
+    const emailConfirmation = group.get('emailConfirmation')
+    if (!email || !emailConfirmation){
+      return undefined
+    }
+    if (email.value !== emailConfirmation.value){
+      return {emailNotMatch:true}
+    }
+    return undefined
   }
 
   itemsValue(): number{
